@@ -1,0 +1,44 @@
+#calculator {
+  width: 256px;
+}
+
+#display {
+  margin: 8px;
+  text-align: right;
+  height: 1em;
+}
+
+#buttons {
+  display: grid;
+  width: 256px;
+  grid-template-columns: repeat(4, auto);
+}
+
+#buttons button {
+  margin: 4px;
+  border: solid 1px black;
+  border-radius: 4px;
+  padding: 4px;
+  text-align: center;
+}
+
+#seven, #eight, #nine, #divide {
+  grid-row: 1;
+}
+
+#four, #five, #six, #multiply {
+  grid-row: 2;
+}
+
+#one, #two, #three, #subtract {
+  grid-row: 3;
+}
+
+#zero, #decimal, #equals, #add {
+  grid-row: 4;
+}
+
+#clear {
+  grid-column: 4;
+  grid-row: 5;
+}
