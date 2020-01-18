@@ -2,7 +2,7 @@
   width: 256px;
 }
 
-#display {
+#display, #result {
   margin: 8px;
   text-align: right;
   height: 1em;
