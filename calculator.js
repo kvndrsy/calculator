@@ -8,6 +8,7 @@ let resultValue = 0;
 let currentValueString = "";
 let isOperatorActive = false;
 let isDecimalActive = false;
+let isDivisionByZero = false;
 let isDisplayEvaluated = false;
 
 function add(a, b) {
@@ -23,6 +24,7 @@ function multiply(a, b) {
 }
 
 function divide(a, b) {
+  if (b === 0) isDivisionByZero = true;
   return a / b;
 }
 
@@ -49,6 +51,8 @@ function executeOrderOfOperations(operatorsRegEx) {
     if (!index) break;
 
     let newValue = operate(displayValues[index], displayValues[index - 1], displayValues[index + 1]);
+    if (isDivisionByZero) break;
+
     displayValues.splice(index - 1, 3, newValue);
   }
 }
@@ -64,12 +68,13 @@ function inputDigit(buttonValue) {
     currentValueString = buttonValue;
     result.innerText = "";
     displayValues = [];
-    isDisplayEvaluated = false;
   } else {
     currentValueString += buttonValue;
   }
 
   isOperatorActive = false;
+  isDivisionByZero = false;
+  isDisplayEvaluated = false;
 }
 
 function inputOperator(buttonValue) {
@@ -78,28 +83,31 @@ function inputOperator(buttonValue) {
   } else if (display.innerText.slice(-1) === ".") {
     display.innerText = display.innerText.slice(0, -1) + buttonValue;
     currentValueString = currentValueString.slice(0, -1);
-    isOperatorActive = true;
   } else {
     if (isDisplayEvaluated) display.innerText = resultValue + buttonValue;
     else display.innerText += buttonValue;
-    isOperatorActive = true;
   }
 
   if (currentValueString !== "") {
     if (isDisplayEvaluated) {
       displayValues.push(buttonValue);
-      isDisplayEvaluated = false;
-    } else  {
+    } else {
       displayValues.push(+currentValueString, buttonValue);
     }
     currentValueString = "";
   } else if (!displayValues.length) {
     displayValues.push(0, buttonValue);
+    if (isDivisionByZero) {
+      result.innerText = "";
+    }
   } else {
     displayValues.splice(-1, 1, buttonValue);
   }
   
+  isOperatorActive = true;
   isDecimalActive = false;
+  isDivisionByZero = false;
+  isDisplayEvaluated = false;
 }
 
 function inputDecimal() {
@@ -108,20 +116,21 @@ function inputDecimal() {
       display.innerText += ".";
       currentValueString += ".";
     } else {
-      if (isOperatorActive) isOperatorActive = false;
       if (isDisplayEvaluated) {
         display.innerText = "0.";
         currentValueString = "0.";
         result.innerText = "";
         displayValues = [];
-        isDisplayEvaluated = false;
       } else {
         display.innerText += "0.";
         currentValueString += "0.";
       }
     }
 
+    isOperatorActive = false;
     isDecimalActive = true;
+    isDivisionByZero = false;
+    isDisplayEvaluated = false;
   }
 }
 
@@ -132,24 +141,36 @@ function inputEqualSign() {
   } else if (display.innerText.slice(-1) === ".") {
     display.innerText = display.innerText.slice(0, -1) + "=";
     displayValues.push(+currentValueString);
+  } else if (isDisplayEvaluated) {
+    display.innerText = resultValue + "=";
+    if (isDivisionByZero) displayValues.push(0);
   } else {
     display.innerText += "=";
     displayValues.push(+currentValueString);
   }
 
   currentValueString = "";
+  isOperatorActive = false;
   isDecimalActive = false;
+  isDivisionByZero = false;
+  isDisplayEvaluated = false;
 }
 
 function evaluateDisplay() {
   executeOrderOfOperations(/[*/]/);
-  executeOrderOfOperations(/[+-]/);
-  resultValue = displayValues[0];
-  result.innerText = resultValue;
-  currentValueString += resultValue;
-  isDisplayEvaluated = true;
+  if (!isDivisionByZero) {
+    executeOrderOfOperations(/[+-]/);
+    resultValue = displayValues[0];
+    result.innerText = resultValue;
+    currentValueString += resultValue;
+  } else {
+    result.innerText = "Cannot divide by zero.";
+    resultValue = 0;
+    currentValueString = "";
+    displayValues = [];
+  }
 
-  if (resultValue % 1 !== 0) isDecimalActive = true;
+  isDisplayEvaluated = true;
 }
 
 function resetCalculator() {
@@ -160,6 +181,7 @@ function resetCalculator() {
   currentValueString = "";
   isOperatorActive = false;
   isDecimalActive = false;
+  isDivisionByZero = false;
   isDisplayEvaluated = false;
 }
 
